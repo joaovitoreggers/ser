@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "apps.cardapio",
     "apps.pedidos",
     "apps.financeiro",
+    "apps.relatorios",
 ]
 
 MIDDLEWARE = [
@@ -95,3 +96,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOGIN_URL = "usuarios:login"
+LOGIN_REDIRECT_URL = "relatorios:dashboard"
+LOGOUT_REDIRECT_URL = "usuarios:login"

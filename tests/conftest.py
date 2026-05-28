@@ -34,6 +34,26 @@ def user(db):
 
 
 @pytest.fixture
+def make_perfil(db, restaurante):
+    """Cria User + PerfilUsuario no grupo correspondente, com PIN opcional."""
+    from django.contrib.auth.models import Group
+
+    from apps.usuarios.models import PerfilUsuario
+
+    def _make(perfil: str, *, senha: str = "senha-forte-123", pin: str | None = None):
+        u = User.objects.create_user(username=f"{perfil}_user", password=senha)
+        grupo, _ = Group.objects.get_or_create(name=perfil)
+        u.groups.add(grupo)
+        p = PerfilUsuario(user=u, restaurante=restaurante, perfil=perfil)
+        if pin:
+            p.set_pin(pin)
+        p.save()
+        return u
+
+    return _make
+
+
+@pytest.fixture
 def ingrediente(restaurante):
     return Ingrediente.objects.create(
         restaurante=restaurante,
