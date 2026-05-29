@@ -1,0 +1,98 @@
+{% extends "pedidos/_layout.html" %}
+
+{% block pedidos_content %}
+<div class="flex items-center justify-between mb-4">
+  <div>
+    <h1 class="text-2xl font-bold">
+      {% if pedido.mesa %}Mesa {{ pedido.mesa.numero }}{% else %}Balcão{% endif %}
+    </h1>
+    <p class="text-sm text-gray-500">Pedido · {{ pedido.get_status_display }}</p>
+  </div>
+  <a href="{% url 'pedidos:mesas' %}" class="text-gray-500 hover:underline">Voltar ao salão</a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  {# ---- Itens da comanda ---- #}
+  <div class="lg:col-span-2 bg-white rounded-lg shadow overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-left text-gray-600">
+        <tr>
+          <th class="px-4 py-2">Item</th>
+          <th class="px-4 py-2 text-right">Qtd</th>
+          <th class="px-4 py-2 text-right">Unit.</th>
+          <th class="px-4 py-2 text-right">Subtotal</th>
+          <th class="px-4 py-2">Status</th>
+          <th class="px-4 py-2"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for item in itens %}
+        <tr class="{% if item.status == 'cancelado' %}opacity-50 line-through{% endif %}">
+          <td class="px-4 py-2 font-medium">{{ item.prato.nome }}</td>
+          <td class="px-4 py-2 text-right">{{ item.quantidade }}</td>
+          <td class="px-4 py-2 text-right">R$ {{ item.preco_unitario }}</td>
+          <td class="px-4 py-2 text-right">R$ {{ item.subtotal }}</td>
+          <td class="px-4 py-2">{{ item.get_status_display }}</td>
+          <td class="px-4 py-2 text-right">
+            {% if item.status != 'cancelado' and not pedido.pago %}
+            <a href="{% url 'pedidos:item_cancelar' item.pk %}" class="text-red-600 hover:underline">Cancelar</a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="px-4 py-6 text-center text-gray-400">Nenhum item na comanda.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {# ---- Painel lateral: adicionar item + totais ---- #}
+  <div class="space-y-6">
+    {% if not pedido.pago %}
+    <div class="bg-white rounded-lg shadow p-4">
+      <h2 class="font-semibold mb-3">Adicionar item</h2>
+      <form method="post" action="{% url 'pedidos:item_adicionar' pedido.pk %}" class="space-y-3">
+        {% csrf_token %}
+        {% for field in item_form %}
+        <div>
+          <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
+          {{ field }}
+          {% for e in field.errors %}<p class="text-red-600 text-sm mt-1">{{ e }}</p>{% endfor %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="w-full px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">
+          Adicionar
+        </button>
+      </form>
+    </div>
+    {% endif %}
+
+    <div class="bg-white rounded-lg shadow p-4">
+      <div class="flex justify-between text-sm mb-1">
+        <span class="text-gray-500">Subtotal</span><span>R$ {{ pedido.subtotal }}</span>
+      </div>
+      <div class="flex justify-between text-sm mb-1">
+        <span class="text-gray-500">Desconto</span><span>R$ {{ pedido.desconto }}</span>
+      </div>
+      <div class="flex justify-between font-bold text-lg border-t pt-2 mt-2">
+        <span>Total</span><span>R$ {{ pedido.total }}</span>
+      </div>
+    </div>
+
+    {% if not pedido.pago %}
+    <form method="post" action="{% url 'pedidos:pedido_enviar' pedido.pk %}">
+      {% csrf_token %}
+      <button type="submit" class="w-full px-4 py-2 rounded border border-indigo-600 text-indigo-600 hover:bg-indigo-50">
+        Enviar à cozinha
+      </button>
+    </form>
+    <a href="{% url 'pedidos:pedido_pagar' pedido.pk %}"
+       class="block text-center w-full px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700">
+      Fechar / pagar
+    </a>
+    {% else %}
+    <p class="text-center text-green-700 font-semibold">Pedido pago — somente leitura.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

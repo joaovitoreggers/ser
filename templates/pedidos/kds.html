@@ -1,0 +1,58 @@
+{% extends "pedidos/_layout.html" %}
+
+{% block pedidos_content %}
+<h1 class="text-2xl font-bold mb-4">Cozinha (KDS)</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  {# Em preparo #}
+  <div>
+    <h2 class="font-semibold mb-3 text-amber-700">Em preparo</h2>
+    <div class="space-y-3">
+      {% for item in colunas.em_preparo %}
+      <div class="bg-white rounded-lg shadow p-4 flex items-center justify-between">
+        <div>
+          <p class="font-medium">{{ item.quantidade }}x {{ item.prato.nome }}</p>
+          <p class="text-xs text-gray-500">
+            {% if item.pedido.mesa %}Mesa {{ item.pedido.mesa.numero }}{% else %}Balcão{% endif %}
+            · {{ item.enviado_em|time:"H:i" }}
+          </p>
+        </div>
+        <form method="post" action="{% url 'pedidos:item_avancar' item.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="px-3 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">
+            Marcar pronto
+          </button>
+        </form>
+      </div>
+      {% empty %}
+      <p class="text-gray-400 text-center py-6">Nada em preparo.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  {# Pronto #}
+  <div>
+    <h2 class="font-semibold mb-3 text-green-700">Pronto</h2>
+    <div class="space-y-3">
+      {% for item in colunas.pronto %}
+      <div class="bg-white rounded-lg shadow p-4 flex items-center justify-between">
+        <div>
+          <p class="font-medium">{{ item.quantidade }}x {{ item.prato.nome }}</p>
+          <p class="text-xs text-gray-500">
+            {% if item.pedido.mesa %}Mesa {{ item.pedido.mesa.numero }}{% else %}Balcão{% endif %}
+          </p>
+        </div>
+        <form method="post" action="{% url 'pedidos:item_avancar' item.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="px-3 py-2 rounded border border-green-600 text-green-700 hover:bg-green-50">
+            Entregue
+          </button>
+        </form>
+      </div>
+      {% empty %}
+      <p class="text-gray-400 text-center py-6">Nada pronto.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

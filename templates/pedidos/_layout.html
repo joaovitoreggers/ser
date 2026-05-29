@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Pedidos — SGR{% endblock %}
+
+{% block body %}
+<div class="min-h-screen">
+  <nav class="bg-indigo-700 text-white px-6 py-3 flex items-center gap-6">
+    <span class="font-bold">SGR · Pedidos</span>
+    <a href="{% url 'pedidos:mesas' %}" class="hover:underline">Mesas</a>
+    <a href="{% url 'pedidos:kds' %}" class="hover:underline">Cozinha</a>
+    <a href="{% url 'pedidos:caixa' %}" class="hover:underline">Caixa</a>
+    <form method="post" action="{% url 'usuarios:logout' %}" class="ml-auto">
+      {% csrf_token %}
+      <button type="submit" class="hover:underline">Sair</button>
+    </form>
+  </nav>
+
+  <main class="p-6 max-w-6xl mx-auto">
+    {% block pedidos_content %}{% endblock %}
+  </main>
+
+  {# Container dos modais HTMX #}
+  <div id="modal"></div>
+</div>
+{% endblock %}

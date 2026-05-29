@@ -1,0 +1,30 @@
+{% extends "pedidos/_layout.html" %}
+
+{% block pedidos_content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow p-6">
+  <h1 class="text-xl font-bold mb-1">Fechar pedido</h1>
+  <p class="text-sm text-gray-500 mb-4">
+    {% if pedido.mesa %}Mesa {{ pedido.mesa.numero }}{% else %}Balcão{% endif %}
+  </p>
+
+  <div class="mb-4 text-sm">
+    <div class="flex justify-between"><span class="text-gray-500">Subtotal</span><span>R$ {{ pedido.subtotal }}</span></div>
+    <div class="flex justify-between font-bold text-lg border-t pt-2 mt-2"><span>Total</span><span>R$ {{ pedido.total }}</span></div>
+  </div>
+
+  <form method="post" class="space-y-3">
+    {% csrf_token %}
+    {% for field in form %}
+    <div>
+      <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
+      {{ field }}
+      {% for e in field.errors %}<p class="text-red-600 text-sm mt-1">{{ e }}</p>{% endfor %}
+    </div>
+    {% endfor %}
+    <div class="flex justify-end gap-2 pt-2">
+      <a href="{% url 'pedidos:caixa' %}" class="px-4 py-2 rounded border border-gray-300">Voltar</a>
+      <button type="submit" class="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700">Confirmar pagamento</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

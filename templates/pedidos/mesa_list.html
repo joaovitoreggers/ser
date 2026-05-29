@@ -1,0 +1,22 @@
+{% extends "pedidos/_layout.html" %}
+
+{% block pedidos_content %}
+<div class="flex items-center justify-between mb-4">
+  <div>
+    <h1 class="text-2xl font-bold">Gerenciar mesas</h1>
+    <a href="{% url 'pedidos:mesas' %}" class="text-sm text-gray-500 hover:underline">← Voltar ao salão</a>
+  </div>
+  <button hx-get="{% url 'pedidos:mesa_novo' %}"
+          hx-target="#modal" hx-swap="innerHTML"
+          class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">
+    + Nova mesa
+  </button>
+</div>
+
+<div id="tabela"
+     hx-get="{% url 'pedidos:mesa_tabela' %}"
+     hx-trigger="pedidos:changed from:body"
+     hx-target="#tabela" hx-swap="innerHTML">
+  {% include "pedidos/_mesa_tabela.html" %}
+</div>
+{% endblock %}
