@@ -434,6 +434,19 @@ class PedidoPagarView(CaixaAccessMixin, TenantQuerysetMixin, View):
             pedido.mesa.status = Mesa.Status.LIVRE
             pedido.mesa.save(update_fields=["status"])
 
+        # Registra o Pagamento (financeiro §2). Sem turno explícito no modelo:
+        # a associação ao TurnoCaixa é temporal (ver financeiro.services).
+        from apps.financeiro.models import Pagamento
+
+        forma = form.cleaned_data.get("forma") or Pagamento.Forma.DINHEIRO
+        Pagamento.objects.create(
+            pedido=pedido,
+            forma=forma,
+            valor=total,
+            troco=max(valor_pago - total, 0),
+            usuario=request.user,
+        )
+
         registrar_log(
             restaurante=self.restaurante,
             usuario=request.user,
