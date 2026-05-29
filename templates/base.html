@@ -11,5 +11,71 @@
 <body class="bg-gray-100 text-gray-900"
       hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
   {% block body %}{% endblock %}
+
+  {% if request.user.is_authenticated %}
+  {# Alertas em tempo real (§3B/§3C) — toasts no canto da tela #}
+  <div id="sgr-alertas" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 w-80 pointer-events-none"></div>
+  <script>
+  (function () {
+    var box = document.getElementById('sgr-alertas');
+    if (!box) return;
+
+    var ESTILO = {
+      estoque_alerta:    { cor: 'bg-amber-600',  icone: '⚠', titulo: 'Estoque crítico' },
+      prato_indisponivel:{ cor: 'bg-red-600',    icone: '⛔', titulo: 'Prato indisponível' },
+      margem_alerta:     { cor: 'bg-orange-600', icone: '↓', titulo: 'Margem baixa' }
+    };
+
+    function mensagem(ev, p) {
+      if (ev === 'estoque_alerta')
+        return (p.ingrediente || 'Ingrediente') + ': ' + p.estoque_atual + ' (mín. ' + p.estoque_minimo + ')';
+      if (ev === 'prato_indisponivel')
+        return (p.prato || 'Prato') + ' ficou indisponível.';
+      if (ev === 'margem_alerta')
+        return (p.prato || 'Prato') + ': margem ' + p.margem_lucro + '% (padrão ' + p.margem_padrao + '%)';
+      return JSON.stringify(p);
+    }
+
+    function toast(ev, p) {
+      var e = ESTILO[ev] || { cor: 'bg-gray-700', icone: 'ℹ', titulo: ev };
+      var el = document.createElement('div');
+      el.className = e.cor + ' text-white rounded-lg shadow-lg px-4 py-3 text-sm pointer-events-auto transition-opacity duration-300';
+      var titulo = document.createElement('div');
+      titulo.className = 'font-bold flex items-center gap-2';
+      titulo.textContent = e.icone + ' ' + e.titulo;
+      var corpo = document.createElement('div');
+      corpo.className = 'opacity-90 mt-0.5';
+      corpo.textContent = mensagem(ev, p);
+      el.appendChild(titulo);
+      el.appendChild(corpo);
+      box.appendChild(el);
+      setTimeout(function () {
+        el.style.opacity = '0';
+        setTimeout(function () { el.remove(); }, 350);
+      }, 8000);
+    }
+
+    var ws, tentativas = 0;
+    function conectar() {
+      var proto = location.protocol === 'https:' ? 'wss' : 'ws';
+      ws = new WebSocket(proto + '://' + location.host + '/ws/eventos/');
+      ws.onopen = function () { tentativas = 0; };
+      ws.onmessage = function (m) {
+        try {
+          var d = JSON.parse(m.data);
+          if (d && d.event) toast(d.event, d.payload || {});
+        } catch (e) {}
+      };
+      ws.onclose = function () {
+        tentativas++;
+        var espera = Math.min(30000, 1000 * Math.pow(2, tentativas));
+        setTimeout(conectar, espera);
+      };
+      ws.onerror = function () { try { ws.close(); } catch (e) {} };
+    }
+    conectar();
+  })();
+  </script>
+  {% endif %}
 </body>
 </html>
