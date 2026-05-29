@@ -1,0 +1,19 @@
+{% extends "estoque/_layout.html" %}
+
+{% block estoque_content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold">Ingredientes</h1>
+  <button hx-get="{% url 'estoque:ingrediente_novo' %}"
+          hx-target="#modal" hx-swap="innerHTML"
+          class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">
+    + Novo ingrediente
+  </button>
+</div>
+
+<div id="tabela"
+     hx-get="{% url 'estoque:ingrediente_tabela' %}"
+     hx-trigger="estoque:changed from:body"
+     hx-target="#tabela" hx-swap="innerHTML">
+  {% include "estoque/_ingrediente_tabela.html" %}
+</div>
+{% endblock %}

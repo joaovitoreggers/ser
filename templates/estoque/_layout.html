@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Estoque — SGR{% endblock %}
+
+{% block body %}
+<div class="min-h-screen">
+  <nav class="bg-indigo-700 text-white px-6 py-3 flex items-center gap-6">
+    <span class="font-bold">SGR · Estoque</span>
+    <a href="{% url 'estoque:home' %}" class="hover:underline">Ingredientes</a>
+    <a href="{% url 'estoque:categoria_list' %}" class="hover:underline">Categorias</a>
+    <a href="{% url 'estoque:fornecedor_list' %}" class="hover:underline">Fornecedores</a>
+    <a href="{% url 'estoque:entrada_list' %}" class="hover:underline">Entradas</a>
+    <a href="{% url 'estoque:ajuste_list' %}" class="hover:underline">Ajustes</a>
+    <form method="post" action="{% url 'usuarios:logout' %}" class="ml-auto">
+      {% csrf_token %}
+      <button type="submit" class="hover:underline">Sair</button>
+    </form>
+  </nav>
+
+  <main class="p-6 max-w-6xl mx-auto">
+    {% block estoque_content %}{% endblock %}
+  </main>
+
+  {# Container dos modais HTMX #}
+  <div id="modal"></div>
+</div>
+{% endblock %}

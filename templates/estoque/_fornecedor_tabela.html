@@ -1,0 +1,33 @@
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-left text-gray-600">
+      <tr>
+        <th class="px-4 py-2">Nome</th>
+        <th class="px-4 py-2">CNPJ</th>
+        <th class="px-4 py-2 text-center">Ativo</th>
+        <th class="px-4 py-2 text-right">Ações</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for f in object_list %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-2 font-medium">{{ f.nome }}</td>
+        <td class="px-4 py-2">{{ f.cnpj|default:"—" }}</td>
+        <td class="px-4 py-2 text-center">
+          {% if f.ativo %}<span class="text-green-600">Sim</span>{% else %}<span class="text-gray-400">Não</span>{% endif %}
+        </td>
+        <td class="px-4 py-2 text-right whitespace-nowrap">
+          <button hx-get="{% url 'estoque:fornecedor_editar' f.pk %}"
+                  hx-target="#modal" hx-swap="innerHTML"
+                  class="text-indigo-600 hover:underline">Editar</button>
+          <button hx-get="{% url 'estoque:fornecedor_excluir' f.pk %}"
+                  hx-target="#modal" hx-swap="innerHTML"
+                  class="ml-3 text-red-600 hover:underline">Excluir</button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4" class="px-4 py-6 text-center text-gray-400">Nenhum fornecedor cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

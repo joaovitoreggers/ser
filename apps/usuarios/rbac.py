@@ -9,7 +9,7 @@ PERFIL_REDIRECT: dict[str, str] = {
     "garcom": "pedidos:mesas",
     "cozinheiro": "pedidos:kds",
     "caixa": "pedidos:caixa",
-    "almoxarife": "estoque:index",
+    "almoxarife": "estoque:home",
 }
 
 _CRUD = ["add", "change", "delete", "view"]

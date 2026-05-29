@@ -1,0 +1,43 @@
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-left text-gray-600">
+      <tr>
+        <th class="px-4 py-2">Nome</th>
+        <th class="px-4 py-2">Categoria</th>
+        <th class="px-4 py-2">Un.</th>
+        <th class="px-4 py-2 text-right">Estoque</th>
+        <th class="px-4 py-2 text-right">Mínimo</th>
+        <th class="px-4 py-2 text-right">Custo</th>
+        <th class="px-4 py-2 text-center">Ativo</th>
+        <th class="px-4 py-2 text-right">Ações</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for ing in object_list %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-2 font-medium">{{ ing.nome }}</td>
+        <td class="px-4 py-2">{{ ing.categoria.nome|default:"—" }}</td>
+        <td class="px-4 py-2">{{ ing.unidade_medida }}</td>
+        <td class="px-4 py-2 text-right {% if ing.abaixo_minimo %}text-red-600 font-semibold{% endif %}">
+          {{ ing.estoque_atual }}
+        </td>
+        <td class="px-4 py-2 text-right">{{ ing.estoque_minimo }}</td>
+        <td class="px-4 py-2 text-right">{{ ing.custo_unitario }}</td>
+        <td class="px-4 py-2 text-center">
+          {% if ing.ativo %}<span class="text-green-600">Sim</span>{% else %}<span class="text-gray-400">Não</span>{% endif %}
+        </td>
+        <td class="px-4 py-2 text-right whitespace-nowrap">
+          <button hx-get="{% url 'estoque:ingrediente_editar' ing.pk %}"
+                  hx-target="#modal" hx-swap="innerHTML"
+                  class="text-indigo-600 hover:underline">Editar</button>
+          <button hx-get="{% url 'estoque:ingrediente_excluir' ing.pk %}"
+                  hx-target="#modal" hx-swap="innerHTML"
+                  class="ml-3 text-red-600 hover:underline">Excluir</button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="px-4 py-6 text-center text-gray-400">Nenhum ingrediente cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,28 @@
+{% comment %}Modal de formulário genérico (create/update) carregado via HTMX em #modal.{% endcomment %}
+<div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+     x-data
+     @keydown.escape.window="document.getElementById('modal').innerHTML=''">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6"
+       @click.outside="document.getElementById('modal').innerHTML=''">
+    <h3 class="text-lg font-bold mb-4">{{ titulo }}</h3>
+    <form hx-post="{{ action_url }}" hx-target="#modal" hx-swap="innerHTML" class="space-y-3">
+      {% csrf_token %}
+      {% for field in form %}
+      <div>
+        <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<p class="text-xs text-gray-500 mt-1">{{ field.help_text }}</p>{% endif %}
+        {% for error in field.errors %}<p class="text-red-600 text-sm mt-1">{{ error }}</p>{% endfor %}
+      </div>
+      {% endfor %}
+      {% if form.non_field_errors %}
+      <div class="text-red-600 text-sm">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" class="px-4 py-2 rounded border border-gray-300"
+                onclick="document.getElementById('modal').innerHTML=''">Cancelar</button>
+        <button type="submit" class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
