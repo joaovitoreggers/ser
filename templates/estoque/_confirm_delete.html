@@ -1,0 +1,23 @@
+{% comment %}Modal de confirmação de exclusão carregado via HTMX em #modal.{% endcomment %}
+<div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+     x-data
+     @keydown.escape.window="document.getElementById('modal').innerHTML=''">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6"
+       @click.outside="document.getElementById('modal').innerHTML=''">
+    <h3 class="text-lg font-bold mb-4">Confirmar exclusão</h3>
+    <p class="mb-4">Tem certeza que deseja excluir <strong>{{ object }}</strong>?</p>
+    {% if erro %}
+    <div class="mb-4 text-red-600 text-sm">{{ erro }}</div>
+    {% endif %}
+    <form hx-post="{{ action_url }}" hx-target="#modal" hx-swap="innerHTML">
+      {% csrf_token %}
+      <div class="flex justify-end gap-2">
+        <button type="button" class="px-4 py-2 rounded border border-gray-300"
+                onclick="document.getElementById('modal').innerHTML=''">Cancelar</button>
+        {% if not erro %}
+        <button type="submit" class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">Excluir</button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>

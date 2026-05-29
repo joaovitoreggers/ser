@@ -71,7 +71,7 @@ def test_perfil_required_permite_perfil_certo(client, make_perfil, restaurante):
 
 
 def test_tenant_mixin_exige_login(client):
-    resp = client.get(reverse("estoque:index"))
+    resp = client.get(reverse("estoque:home"))
     assert resp.status_code == 302
     assert reverse("usuarios:login") in resp.url
 
