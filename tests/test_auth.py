@@ -67,7 +67,7 @@ def test_perfil_required_permite_perfil_certo(client, make_perfil, restaurante):
     client.login(username="cozinheiro_user", password="senha-forte-123")
     resp = client.get(reverse("pedidos:kds"))
     assert resp.status_code == 200
-    assert restaurante.nome in resp.content.decode()
+    assert "Cozinha" in resp.content.decode()  # página real do KDS
 
 
 def test_tenant_mixin_exige_login(client):

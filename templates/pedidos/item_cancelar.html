@@ -1,0 +1,34 @@
+{% extends "pedidos/_layout.html" %}
+
+{% block pedidos_content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow p-6">
+  <h1 class="text-xl font-bold mb-2">Cancelar item</h1>
+  <p class="text-gray-600 mb-4">
+    {{ item.quantidade }}x {{ item.prato.nome }} — status atual:
+    <strong>{{ item.get_status_display }}</strong>.
+  </p>
+  {% if item.status != 'aguardando' %}
+  <div class="mb-4 text-sm text-amber-700 bg-amber-50 rounded p-3">
+    Este item já foi enviado à cozinha. É necessário o PIN de um gerente ou
+    administrador para cancelar.
+  </div>
+  {% endif %}
+
+  <form method="post" class="space-y-3">
+    {% csrf_token %}
+    {% for field in form %}
+    {% if field.name != 'pin' or item.status != 'aguardando' %}
+    <div>
+      <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
+      {{ field }}
+      {% for e in field.errors %}<p class="text-red-600 text-sm mt-1">{{ e }}</p>{% endfor %}
+    </div>
+    {% endif %}
+    {% endfor %}
+    <div class="flex justify-end gap-2 pt-2">
+      <a href="{% url 'pedidos:pedido_detalhe' pedido.pk %}" class="px-4 py-2 rounded border border-gray-300">Voltar</a>
+      <button type="submit" class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">Cancelar item</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
