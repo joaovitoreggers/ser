@@ -1,0 +1,47 @@
+{% extends "fichas/_layout.html" %}
+
+{% block fichas_content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold">Fichas técnicas</h1>
+  <a href="{% url 'fichas:ficha_nova' %}"
+     class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">
+    + Nova ficha
+  </a>
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-left text-gray-600">
+      <tr>
+        <th class="px-4 py-2">Nome</th>
+        <th class="px-4 py-2 text-right">Rendimento</th>
+        <th class="px-4 py-2 text-right">Custo total</th>
+        <th class="px-4 py-2 text-right">Custo/porção</th>
+        <th class="px-4 py-2 text-right">Versão</th>
+        <th class="px-4 py-2 text-center">Ativa</th>
+        <th class="px-4 py-2 text-right">Ações</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for ficha in object_list %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-2 font-medium">{{ ficha.nome }}</td>
+        <td class="px-4 py-2 text-right">{{ ficha.rendimento }}</td>
+        <td class="px-4 py-2 text-right">{{ ficha.custo_total }}</td>
+        <td class="px-4 py-2 text-right">{{ ficha.custo_porcao }}</td>
+        <td class="px-4 py-2 text-right">{{ ficha.versao }}</td>
+        <td class="px-4 py-2 text-center">
+          {% if ficha.ativo %}<span class="text-green-600">Sim</span>{% else %}<span class="text-gray-400">Não</span>{% endif %}
+        </td>
+        <td class="px-4 py-2 text-right whitespace-nowrap">
+          <a href="{% url 'fichas:ficha_editar' ficha.pk %}" class="text-indigo-600 hover:underline">Editar</a>
+          <a href="{% url 'fichas:ficha_excluir' ficha.pk %}" class="ml-3 text-red-600 hover:underline">Excluir</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="px-4 py-6 text-center text-gray-400">Nenhuma ficha técnica cadastrada.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

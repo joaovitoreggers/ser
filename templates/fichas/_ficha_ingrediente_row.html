@@ -1,0 +1,24 @@
+{% comment %}Linha do inline formset de ingredientes da ficha.
+Usada tanto na renderização inicial quanto no <template> clonado por JS
+(form = formset.empty_form, com prefixo __prefix__).{% endcomment %}
+<tr class="ficha-row align-top">
+  <td class="px-2 py-2">
+    {{ form.ingrediente }}
+    {% for e in form.ingrediente.errors %}<p class="text-red-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+  </td>
+  <td class="px-2 py-2 w-28">
+    {{ form.quantidade }}
+    {% for e in form.quantidade.errors %}<p class="text-red-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+  </td>
+  <td class="px-2 py-2 w-28">
+    {{ form.unidade }}
+    {% for e in form.unidade.errors %}<p class="text-red-600 text-xs mt-1">{{ e }}</p>{% endfor %}
+  </td>
+  <td class="px-2 py-2 text-center w-20">{{ form.principal }}</td>
+  <td class="px-2 py-2 text-right w-24">
+    {{ form.id }}
+    <span class="hidden">{{ form.DELETE }}</span>
+    <button type="button" class="text-red-600 hover:underline"
+            onclick="removeFichaRow(this)">Remover</button>
+  </td>
+</tr>
