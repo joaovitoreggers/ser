@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Painel — SGR{% endblock %}
+
+{% block body %}
+<div class="min-h-screen">
+  <nav class="bg-indigo-700 text-white px-6 py-3 flex items-center gap-5 flex-wrap">
+    <span class="font-bold">SGR · Painel</span>
+    <a href="{% url 'relatorios:dashboard' %}" class="hover:underline">Dashboard</a>
+    <a href="{% url 'pedidos:mesas' %}" class="hover:underline">Pedidos</a>
+    <a href="{% url 'financeiro:home' %}" class="hover:underline">Caixa</a>
+    <a href="{% url 'cardapio:prato_list' %}" class="hover:underline">Cardápio</a>
+    <a href="{% url 'fichas:ficha_list' %}" class="hover:underline">Fichas</a>
+    <a href="{% url 'estoque:home' %}" class="hover:underline">Estoque</a>
+    <form method="post" action="{% url 'usuarios:logout' %}" class="ml-auto">
+      {% csrf_token %}
+      <button type="submit" class="hover:underline">Sair</button>
+    </form>
+  </nav>
+
+  <main class="p-6 max-w-6xl mx-auto">
+    {% block relatorios_content %}{% endblock %}
+  </main>
+
+  <div id="modal"></div>
+</div>
+{% endblock %}

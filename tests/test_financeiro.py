@@ -209,6 +209,59 @@ def test_fechar_turno_define_fechamento(client, make_perfil, restaurante):
 
 
 # --------------------------------------------------------------------------- #
+# Histórico de turnos e recibo
+# --------------------------------------------------------------------------- #
+def test_turno_list_acessivel(client, make_perfil, restaurante):
+    client.force_login(make_perfil("caixa"))
+    _turno(restaurante)
+    resp = client.get(reverse("financeiro:turno_list"))
+    assert resp.status_code == 200
+    assert b"Hist" in resp.content  # "Histórico de turnos"
+
+
+def test_turno_list_negado_para_garcom(client, make_perfil):
+    client.force_login(make_perfil("garcom"))
+    assert client.get(reverse("financeiro:turno_list")).status_code == 403
+
+
+def test_turno_detalhe_lista_pagamentos(client, make_perfil, restaurante, prato):
+    caixa = make_perfil("caixa")
+    client.force_login(caixa)
+    turno = _turno(restaurante, usuario=caixa)
+    pedido = _pedido_com_item(restaurante, prato)
+    client.post(
+        reverse("pedidos:pedido_pagar", args=[pedido.pk]),
+        {"forma": "dinheiro", "desconto": "0", "valor_pago": "60"},
+    )
+    resp = client.get(reverse("financeiro:turno_detalhe", args=[turno.pk]))
+    assert resp.status_code == 200
+    assert b"recibo" in resp.content
+
+
+def test_recibo_mostra_pagamento(client, make_perfil, restaurante, prato):
+    client.force_login(make_perfil("caixa"))
+    pedido = _pedido_com_item(restaurante, prato)
+    client.post(
+        reverse("pedidos:pedido_pagar", args=[pedido.pk]),
+        {"forma": "pix", "desconto": "0", "valor_pago": "60"},
+    )
+    resp = client.get(reverse("financeiro:recibo", args=[pedido.pk]))
+    assert resp.status_code == 200
+    body = resp.content.decode()
+    assert "Comprovante" in body
+    assert "Pix" in body
+
+
+def test_recibo_isolado_por_tenant(client, make_perfil, outro_restaurante):
+    # pedido em outro tenant não é acessível
+    pedido = Pedido.objects.create(
+        restaurante=outro_restaurante, tipo=Pedido.Tipo.BALCAO
+    )
+    client.force_login(make_perfil("caixa"))
+    assert client.get(reverse("financeiro:recibo", args=[pedido.pk])).status_code == 404
+
+
+# --------------------------------------------------------------------------- #
 # Multi-tenant
 # --------------------------------------------------------------------------- #
 def test_turno_isolado_por_tenant(client, make_perfil, restaurante, outro_restaurante):

@@ -11,6 +11,10 @@
     <a href="{% url 'estoque:fornecedor_list' %}" class="hover:underline">Fornecedores</a>
     <a href="{% url 'estoque:entrada_list' %}" class="hover:underline">Entradas</a>
     <a href="{% url 'estoque:ajuste_list' %}" class="hover:underline">Ajustes</a>
+    {% if request.user.perfil.perfil == 'admin' or request.user.perfil.perfil == 'gerente' %}
+    <a href="{% url 'financeiro:home' %}" class="hover:underline">Financeiro</a>
+    <a href="{% url 'relatorios:dashboard' %}" class="hover:underline">Dashboard</a>
+    {% endif %}
     <form method="post" action="{% url 'usuarios:logout' %}" class="ml-auto">
       {% csrf_token %}
       <button type="submit" class="hover:underline">Sair</button>

@@ -10,6 +10,10 @@
     <a href="{% url 'cardapio:categoria_list' %}" class="hover:underline">Categorias</a>
     <a href="{% url 'fichas:ficha_list' %}" class="hover:underline">Fichas</a>
     <a href="{% url 'estoque:home' %}" class="hover:underline">Estoque</a>
+    {% if request.user.perfil.perfil == 'admin' or request.user.perfil.perfil == 'gerente' %}
+    <a href="{% url 'financeiro:home' %}" class="hover:underline">Financeiro</a>
+    <a href="{% url 'relatorios:dashboard' %}" class="hover:underline">Dashboard</a>
+    {% endif %}
     <form method="post" action="{% url 'usuarios:logout' %}" class="ml-auto">
       {% csrf_token %}
       <button type="submit" class="hover:underline">Sair</button>

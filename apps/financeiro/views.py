@@ -8,9 +8,11 @@ from django.views.generic import View
 from apps.core.mixins import PerfilRequiredMixin, TenantMixin
 from apps.pedidos.services import registrar_log, validar_pin_aprovador
 
+from apps.pedidos.models import ItemPedido, Pedido
+
 from .forms import AbrirTurnoForm, FecharTurnoForm, MovimentacaoForm
 from .models import MovimentacaoCaixa, TurnoCaixa
-from .services import get_turno_aberto, resumo_turno
+from .services import get_turno_aberto, pagamentos_do_turno, resumo_turno
 
 CHANGED_EVENT = "financeiro:changed"
 
@@ -195,3 +197,85 @@ class MovimentacaoCreateView(FinanceiroAccessMixin, TenantMixin, View):
             },
         )
         return _trigger_response()
+
+
+# --------------------------------------------------------------------------- #
+# Histórico de turnos
+# --------------------------------------------------------------------------- #
+class TurnoListView(FinanceiroAccessMixin, TenantMixin, View):
+    template_name = "financeiro/turno_list.html"
+
+    def get(self, request):
+        turnos = list(
+            TurnoCaixa.objects.for_tenant(self.restaurante)
+            .select_related("usuario")
+            .order_by("-aberto_em")
+        )
+        for turno in turnos:
+            resumo = resumo_turno(turno)
+            turno.saldo_esperado = resumo["saldo_esperado"]
+            turno.total_recebido = resumo["total_pagamentos"]
+            if turno.valor_fechamento is not None:
+                turno.diferenca = turno.valor_fechamento - resumo["saldo_esperado"]
+            else:
+                turno.diferenca = None
+        return render(request, self.template_name, {"turnos": turnos})
+
+
+class TurnoDetailView(FinanceiroAccessMixin, TenantMixin, View):
+    template_name = "financeiro/turno_detalhe.html"
+
+    def get(self, request, pk):
+        turno = get_object_or_404(
+            TurnoCaixa.objects.for_tenant(self.restaurante).select_related("usuario"),
+            pk=pk,
+        )
+        resumo = resumo_turno(turno)
+        diferenca = (
+            turno.valor_fechamento - resumo["saldo_esperado"]
+            if turno.valor_fechamento is not None
+            else None
+        )
+        pagamentos = (
+            pagamentos_do_turno(turno)
+            .select_related("pedido", "pedido__mesa", "usuario")
+            .order_by("-criado_em")
+        )
+        movimentacoes = turno.movimentacoes.select_related(
+            "usuario", "autorizado_por"
+        ).order_by("-criado_em")
+        return render(
+            request,
+            self.template_name,
+            {
+                "turno": turno,
+                "resumo": resumo,
+                "diferenca": diferenca,
+                "pagamentos": pagamentos,
+                "movimentacoes": movimentacoes,
+            },
+        )
+
+
+# --------------------------------------------------------------------------- #
+# Recibo / comprovante de pagamento
+# --------------------------------------------------------------------------- #
+class ReciboView(FinanceiroAccessMixin, TenantMixin, View):
+    template_name = "financeiro/recibo.html"
+
+    def get(self, request, pk):
+        pedido = get_object_or_404(
+            Pedido.objects.for_tenant(self.restaurante).select_related("mesa"),
+            pk=pk,
+        )
+        itens = (
+            pedido.itens.exclude(status=ItemPedido.Status.CANCELADO)
+            .select_related("prato")
+            .order_by("enviado_em", "id")
+        )
+        pagamentos = pedido.pagamentos.select_related("usuario").order_by("criado_em")
+        return render(
+            request,
+            self.template_name,
+            {"pedido": pedido, "itens": itens, "pagamentos": pagamentos},
+        )

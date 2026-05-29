@@ -10,6 +10,9 @@
     <a href="{% url 'pedidos:kds' %}" class="hover:underline">Cozinha</a>
     <a href="{% url 'pedidos:caixa' %}" class="hover:underline">Caixa</a>
     <a href="{% url 'financeiro:home' %}" class="hover:underline">Financeiro</a>
+    {% if request.user.perfil.perfil == 'admin' or request.user.perfil.perfil == 'gerente' %}
+    <a href="{% url 'relatorios:dashboard' %}" class="hover:underline">Dashboard</a>
+    {% endif %}
     <form method="post" action="{% url 'usuarios:logout' %}" class="ml-auto">
       {% csrf_token %}
       <button type="submit" class="hover:underline">Sair</button>
