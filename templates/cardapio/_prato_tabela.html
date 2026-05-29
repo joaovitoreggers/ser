@@ -1,0 +1,43 @@
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-left text-gray-600">
+      <tr>
+        <th class="px-4 py-2">Prato</th>
+        <th class="px-4 py-2">Categoria</th>
+        <th class="px-4 py-2">Ficha</th>
+        <th class="px-4 py-2 text-right">Preço</th>
+        <th class="px-4 py-2 text-right">Custo</th>
+        <th class="px-4 py-2 text-right">Margem</th>
+        <th class="px-4 py-2 text-center">Disponível</th>
+        <th class="px-4 py-2 text-right">Ações</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for prato in object_list %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-2 font-medium">{{ prato.nome }}</td>
+        <td class="px-4 py-2">{{ prato.categoria.nome }}</td>
+        <td class="px-4 py-2 text-gray-500">{{ prato.ficha.nome }}</td>
+        <td class="px-4 py-2 text-right">R$ {{ prato.preco_venda }}</td>
+        <td class="px-4 py-2 text-right text-gray-500">R$ {{ prato.custo_atual }}</td>
+        <td class="px-4 py-2 text-right {% if prato.margem_lucro < 0 %}text-red-600 font-semibold{% endif %}">
+          {{ prato.margem_lucro }}%
+        </td>
+        <td class="px-4 py-2 text-center">
+          {% if prato.disponivel %}<span class="text-green-600">Sim</span>{% else %}<span class="text-gray-400">Não</span>{% endif %}
+        </td>
+        <td class="px-4 py-2 text-right whitespace-nowrap">
+          <button hx-get="{% url 'cardapio:prato_editar' prato.pk %}"
+                  hx-target="#modal" hx-swap="innerHTML"
+                  class="text-indigo-600 hover:underline">Editar</button>
+          <button hx-get="{% url 'cardapio:prato_excluir' prato.pk %}"
+                  hx-target="#modal" hx-swap="innerHTML"
+                  class="ml-3 text-red-600 hover:underline">Excluir</button>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="px-4 py-6 text-center text-gray-400">Nenhum prato cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

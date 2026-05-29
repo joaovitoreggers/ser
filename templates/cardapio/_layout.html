@@ -1,13 +1,14 @@
 {% extends "base.html" %}
 
-{% block title %}Fichas Técnicas — SGR{% endblock %}
+{% block title %}Cardápio — SGR{% endblock %}
 
 {% block body %}
 <div class="min-h-screen">
   <nav class="bg-indigo-700 text-white px-6 py-3 flex items-center gap-6">
-    <span class="font-bold">SGR · Fichas Técnicas</span>
+    <span class="font-bold">SGR · Cardápio</span>
+    <a href="{% url 'cardapio:prato_list' %}" class="hover:underline">Pratos</a>
+    <a href="{% url 'cardapio:categoria_list' %}" class="hover:underline">Categorias</a>
     <a href="{% url 'fichas:ficha_list' %}" class="hover:underline">Fichas</a>
-    <a href="{% url 'cardapio:prato_list' %}" class="hover:underline">Cardápio</a>
     <a href="{% url 'estoque:home' %}" class="hover:underline">Estoque</a>
     <form method="post" action="{% url 'usuarios:logout' %}" class="ml-auto">
       {% csrf_token %}
@@ -15,8 +16,11 @@
     </form>
   </nav>
 
-  <main class="p-6 max-w-5xl mx-auto">
-    {% block fichas_content %}{% endblock %}
+  <main class="p-6 max-w-6xl mx-auto">
+    {% block cardapio_content %}{% endblock %}
   </main>
+
+  {# Container dos modais HTMX #}
+  <div id="modal"></div>
 </div>
 {% endblock %}
