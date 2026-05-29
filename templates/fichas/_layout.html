@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Fichas Técnicas — SGR{% endblock %}
+
+{% block body %}
+<div class="min-h-screen">
+  <nav class="bg-indigo-700 text-white px-6 py-3 flex items-center gap-6">
+    <span class="font-bold">SGR · Fichas Técnicas</span>
+    <a href="{% url 'fichas:ficha_list' %}" class="hover:underline">Fichas</a>
+    <a href="{% url 'estoque:home' %}" class="hover:underline">Estoque</a>
+    <form method="post" action="{% url 'usuarios:logout' %}" class="ml-auto">
+      {% csrf_token %}
+      <button type="submit" class="hover:underline">Sair</button>
+    </form>
+  </nav>
+
+  <main class="p-6 max-w-5xl mx-auto">
+    {% block fichas_content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}
