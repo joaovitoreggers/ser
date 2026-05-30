@@ -1,0 +1,10 @@
+{% extends "_shell.html" %}
+
+{% block title %}Usuários — SGR{% endblock %}
+{% block shell_group %}Usuários{% endblock %}
+
+{% block shell_nav %}
+  {% url 'usuarios:usuario_list' as u %}{% include "components/_navlink.html" with url=u label="Equipe" name="usuario_list" %}
+{% endblock %}
+
+{% block shell_content %}{% block usuarios_content %}{% endblock %}{% endblock %}
