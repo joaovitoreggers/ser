@@ -1,0 +1,5 @@
+{# Item de navegação da sidebar. Params: url (href resolvido), label, name (url_name p/ destaque ativo). #}
+<a href="{{ url }}" @click="sidebar = false"
+   class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors {% if request.resolver_match.url_name == name %}bg-white/15 text-white font-semibold{% else %}text-indigo-100/90 hover:bg-white/10 hover:text-white{% endif %}">
+  {{ label }}
+</a>

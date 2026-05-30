@@ -1,0 +1,78 @@
+{% extends "relatorios/_layout.html" %}
+
+{% block relatorios_content %}
+<div class="flex items-center justify-between mb-6">
+  <h1 class="text-2xl font-bold">Dashboard</h1>
+  <span class="text-sm text-gray-500">{{ hoje|date:"d/m/Y" }}</span>
+</div>
+
+{# Indicadores financeiros do dia #}
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+  <div class="bg-white rounded-lg shadow p-4">
+    <p class="text-xs text-gray-500 uppercase">Faturamento (hoje)</p>
+    <p class="text-2xl font-bold text-green-700">R$ {{ faturamento }}</p>
+  </div>
+  <div class="bg-white rounded-lg shadow p-4">
+    <p class="text-xs text-gray-500 uppercase">Pedidos pagos</p>
+    <p class="text-2xl font-bold">{{ num_pedidos }}</p>
+  </div>
+  <div class="bg-white rounded-lg shadow p-4">
+    <p class="text-xs text-gray-500 uppercase">Ticket médio</p>
+    <p class="text-2xl font-bold">R$ {{ ticket_medio|floatformat:2 }}</p>
+  </div>
+  <div class="bg-white rounded-lg shadow p-4">
+    <p class="text-xs text-gray-500 uppercase">Caixa</p>
+    {% if turno %}
+      <p class="text-2xl font-bold text-indigo-700">Aberto</p>
+      <p class="text-xs text-gray-400">saldo R$ {{ resumo.saldo_esperado }}</p>
+    {% else %}
+      <p class="text-2xl font-bold text-gray-400">Fechado</p>
+      <a href="{% url 'financeiro:home' %}" class="text-xs text-indigo-600 hover:underline">abrir caixa</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid gap-4 lg:grid-cols-2">
+  {# Recebimentos por forma #}
+  <div class="bg-white rounded-lg shadow p-4">
+    <h2 class="font-bold mb-3 text-sm text-gray-600">Recebimentos por forma (hoje)</h2>
+    {% if por_forma %}
+    <table class="w-full text-sm">
+      <tbody class="divide-y divide-gray-100">
+        {% for row in por_forma %}
+        <tr>
+          <td class="py-2">{{ row.forma|capfirst }}</td>
+          <td class="py-2 text-right font-medium">R$ {{ row.total }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="text-gray-400 text-sm">Nenhum recebimento hoje.</p>
+    {% endif %}
+  </div>
+
+  {# Operação #}
+  <div class="bg-white rounded-lg shadow p-4">
+    <h2 class="font-bold mb-3 text-sm text-gray-600">Operação agora</h2>
+    <div class="grid grid-cols-2 gap-3 text-sm">
+      <a href="{% url 'pedidos:mesas' %}" class="block rounded border border-gray-200 p-3 hover:bg-gray-50">
+        <span class="block text-2xl font-bold">{{ pedidos_abertos }}</span>
+        <span class="text-gray-500">pedidos em aberto</span>
+      </a>
+      <a href="{% url 'pedidos:kds' %}" class="block rounded border border-gray-200 p-3 hover:bg-gray-50">
+        <span class="block text-2xl font-bold">{{ itens_cozinha }}</span>
+        <span class="text-gray-500">itens na cozinha</span>
+      </a>
+      <a href="{% url 'estoque:home' %}" class="block rounded border border-gray-200 p-3 hover:bg-gray-50 {% if estoque_critico %}border-red-300 bg-red-50{% endif %}">
+        <span class="block text-2xl font-bold {% if estoque_critico %}text-red-700{% endif %}">{{ estoque_critico }}</span>
+        <span class="text-gray-500">ingredientes críticos</span>
+      </a>
+      <a href="{% url 'cardapio:prato_list' %}" class="block rounded border border-gray-200 p-3 hover:bg-gray-50 {% if pratos_indisponiveis %}border-amber-300 bg-amber-50{% endif %}">
+        <span class="block text-2xl font-bold {% if pratos_indisponiveis %}text-amber-700{% endif %}">{{ pratos_indisponiveis }}</span>
+        <span class="text-gray-500">pratos indisponíveis</span>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

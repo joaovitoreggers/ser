@@ -17,8 +17,8 @@ class FichaTecnica(TenantModel):
     ativo = models.BooleanField(default=True)
 
     class Meta:
-        verbose_name = "Ficha Técnica"
-        verbose_name_plural = "Fichas Técnicas"
+        verbose_name = "Receita"
+        verbose_name_plural = "Receitas"
 
     def recalcular_custo(self, *, save: bool = True) -> Decimal:
         """custo_total = Σ(fi.quantidade × ingrediente.custo_unitario);
@@ -51,8 +51,8 @@ class FichaIngrediente(models.Model):
     custo_snapshot = models.DecimalField(max_digits=12, decimal_places=4, default=0)
 
     class Meta:
-        verbose_name = "Ingrediente da Ficha"
-        verbose_name_plural = "Ingredientes da Ficha"
+        verbose_name = "Ingrediente da Receita"
+        verbose_name_plural = "Ingredientes da Receita"
 
     def __str__(self) -> str:
         return f"{self.quantidade}{self.unidade} {self.ingrediente}"
@@ -67,8 +67,8 @@ class FichaTecnicaVersao(models.Model):
     dados = models.JSONField(default=dict)
 
     class Meta:
-        verbose_name = "Versão de Ficha Técnica"
-        verbose_name_plural = "Versões de Ficha Técnica"
+        verbose_name = "Versão de Receita"
+        verbose_name_plural = "Versões de Receita"
 
     def __str__(self) -> str:
         return f"{self.ficha} v{self.versao}"

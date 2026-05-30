@@ -1,0 +1,4 @@
+{# Navegação do grupo "Receitas & Cardápio" (receitas + cardápio). #}
+{% url 'fichas:ficha_list' as u %}{% include "components/_navlink.html" with url=u label="Receitas" name="ficha_list" %}
+{% url 'cardapio:prato_list' as u %}{% include "components/_navlink.html" with url=u label="Pratos" name="prato_list" %}
+{% url 'cardapio:categoria_list' as u %}{% include "components/_navlink.html" with url=u label="Categorias" name="categoria_list" %}

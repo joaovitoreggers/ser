@@ -1,0 +1,56 @@
+{% extends "financeiro/_layout.html" %}
+
+{% block financeiro_content %}
+<h1 class="text-2xl font-bold mb-4">Histórico de turnos</h1>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-left text-gray-600">
+      <tr>
+        <th class="px-4 py-2">Abertura</th>
+        <th class="px-4 py-2">Operador</th>
+        <th class="px-4 py-2">Status</th>
+        <th class="px-4 py-2 text-right">Abertura R$</th>
+        <th class="px-4 py-2 text-right">Esperado R$</th>
+        <th class="px-4 py-2 text-right">Contado R$</th>
+        <th class="px-4 py-2 text-right">Diferença</th>
+        <th class="px-4 py-2"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for turno in turnos %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-2">{{ turno.aberto_em|date:"d/m/Y H:i" }}</td>
+        <td class="px-4 py-2 text-gray-500">{{ turno.usuario|default:"—" }}</td>
+        <td class="px-4 py-2">
+          {% if turno.status == 'aberto' %}
+            <span class="px-2 py-0.5 rounded bg-green-100 text-green-700">Aberto</span>
+          {% else %}
+            <span class="px-2 py-0.5 rounded bg-gray-100 text-gray-600">Fechado</span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-2 text-right">{{ turno.valor_abertura }}</td>
+        <td class="px-4 py-2 text-right">{{ turno.saldo_esperado }}</td>
+        <td class="px-4 py-2 text-right">{{ turno.valor_fechamento|default:"—" }}</td>
+        <td class="px-4 py-2 text-right">
+          {% if turno.diferenca is None %}
+            <span class="text-gray-400">—</span>
+          {% elif turno.diferenca < 0 %}
+            <span class="text-red-600 font-medium">R$ {{ turno.diferenca }}</span>
+          {% elif turno.diferenca > 0 %}
+            <span class="text-amber-600 font-medium">+R$ {{ turno.diferenca }}</span>
+          {% else %}
+            <span class="text-green-600 font-medium">R$ 0,00</span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-2 text-right">
+          <a href="{% url 'financeiro:turno_detalhe' turno.pk %}" class="text-indigo-600 hover:underline">Ver</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="px-4 py-6 text-center text-gray-400">Nenhum turno registrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

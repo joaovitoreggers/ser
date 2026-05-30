@@ -1,0 +1,15 @@
+{% extends "financeiro/_layout.html" %}
+
+{% block financeiro_content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold">Caixa</h1>
+</div>
+
+<div id="painel"
+     hx-get="{% url 'financeiro:home' %}"
+     hx-trigger="financeiro:changed from:body"
+     hx-target="#painel"
+     hx-swap="innerHTML">
+  {% include "financeiro/_painel_turno.html" %}
+</div>
+{% endblock %}

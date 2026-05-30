@@ -1,0 +1,12 @@
+{% extends "_shell.html" %}
+
+{% block title %}Financeiro — SGR{% endblock %}
+{% block shell_group %}Financeiro{% endblock %}
+
+{% block shell_nav %}
+  {% url 'financeiro:home' as u %}{% include "components/_navlink.html" with url=u label="Caixa" name="home" %}
+  {% url 'financeiro:turno_list' as u %}{% include "components/_navlink.html" with url=u label="Histórico de turnos" name="turno_list" %}
+  {% url 'pedidos:caixa' as u %}{% include "components/_navlink.html" with url=u label="Pedidos a pagar" name="caixa" %}
+{% endblock %}
+
+{% block shell_content %}{% block financeiro_content %}{% endblock %}{% endblock %}

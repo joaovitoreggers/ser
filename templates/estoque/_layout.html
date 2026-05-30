@@ -1,27 +1,14 @@
-{% extends "base.html" %}
+{% extends "_shell.html" %}
 
 {% block title %}Estoque — SGR{% endblock %}
+{% block shell_group %}Estoque{% endblock %}
 
-{% block body %}
-<div class="min-h-screen">
-  <nav class="bg-indigo-700 text-white px-6 py-3 flex items-center gap-6">
-    <span class="font-bold">SGR · Estoque</span>
-    <a href="{% url 'estoque:home' %}" class="hover:underline">Ingredientes</a>
-    <a href="{% url 'estoque:categoria_list' %}" class="hover:underline">Categorias</a>
-    <a href="{% url 'estoque:fornecedor_list' %}" class="hover:underline">Fornecedores</a>
-    <a href="{% url 'estoque:entrada_list' %}" class="hover:underline">Entradas</a>
-    <a href="{% url 'estoque:ajuste_list' %}" class="hover:underline">Ajustes</a>
-    <form method="post" action="{% url 'usuarios:logout' %}" class="ml-auto">
-      {% csrf_token %}
-      <button type="submit" class="hover:underline">Sair</button>
-    </form>
-  </nav>
-
-  <main class="p-6 max-w-6xl mx-auto">
-    {% block estoque_content %}{% endblock %}
-  </main>
-
-  {# Container dos modais HTMX #}
-  <div id="modal"></div>
-</div>
+{% block shell_nav %}
+  {% url 'estoque:home' as u %}{% include "components/_navlink.html" with url=u label="Ingredientes" name="home" %}
+  {% url 'estoque:categoria_list' as u %}{% include "components/_navlink.html" with url=u label="Categorias" name="categoria_list" %}
+  {% url 'estoque:fornecedor_list' as u %}{% include "components/_navlink.html" with url=u label="Fornecedores" name="fornecedor_list" %}
+  {% url 'estoque:entrada_list' as u %}{% include "components/_navlink.html" with url=u label="Entradas" name="entrada_list" %}
+  {% url 'estoque:ajuste_list' as u %}{% include "components/_navlink.html" with url=u label="Ajustes" name="ajuste_list" %}
 {% endblock %}
+
+{% block shell_content %}{% block estoque_content %}{% endblock %}{% endblock %}

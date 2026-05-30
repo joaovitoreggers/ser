@@ -14,7 +14,7 @@ def redirect_para_perfil(user) -> str:
     """URL pós-login conforme o perfil do usuário (§5)."""
     perfil = getattr(user, "perfil", None)
     nome = perfil.perfil if perfil else None
-    return reverse(PERFIL_REDIRECT.get(nome, "relatorios:dashboard"))
+    return reverse(PERFIL_REDIRECT.get(nome, "home"))
 
 
 class PerfilLoginView(LoginView):

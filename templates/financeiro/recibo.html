@@ -1,0 +1,47 @@
+{% extends "financeiro/_layout.html" %}
+
+{% block financeiro_content %}
+<div class="max-w-md mx-auto bg-white rounded-lg shadow p-6">
+  <div class="text-center border-b pb-3 mb-3">
+    <h1 class="text-lg font-bold">Comprovante</h1>
+    <p class="text-sm text-gray-500">
+      {% if pedido.mesa %}Mesa {{ pedido.mesa.numero }}{% else %}Balcão{% endif %}
+      · {{ pedido.fechado_em|date:"d/m/Y H:i"|default:"—" }}
+    </p>
+  </div>
+
+  <table class="w-full text-sm mb-3">
+    <tbody class="divide-y divide-gray-100">
+      {% for item in itens %}
+      <tr>
+        <td class="py-1">{{ item.quantidade }}× {{ item.prato.nome }}</td>
+        <td class="py-1 text-right">R$ {{ item.subtotal }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="text-sm border-t pt-2 space-y-1">
+    <div class="flex justify-between text-gray-500"><span>Subtotal</span><span>R$ {{ pedido.subtotal }}</span></div>
+    {% if pedido.desconto %}<div class="flex justify-between text-gray-500"><span>Desconto</span><span>− R$ {{ pedido.desconto }}</span></div>{% endif %}
+    <div class="flex justify-between font-bold text-base"><span>Total</span><span>R$ {{ pedido.total }}</span></div>
+  </div>
+
+  <div class="mt-4 border-t pt-3">
+    <h2 class="text-xs uppercase text-gray-500 mb-2">Pagamentos</h2>
+    {% for pag in pagamentos %}
+    <div class="flex justify-between text-sm">
+      <span>{{ pag.get_forma_display }}{% if pag.troco %} (troco R$ {{ pag.troco }}){% endif %}</span>
+      <span>R$ {{ pag.valor }}</span>
+    </div>
+    {% empty %}
+    <p class="text-sm text-gray-400">Pedido ainda não pago.</p>
+    {% endfor %}
+  </div>
+
+  <div class="mt-5 flex justify-between">
+    <a href="{% url 'financeiro:home' %}" class="text-sm text-indigo-600 hover:underline">← Caixa</a>
+    <button onclick="window.print()" class="px-3 py-1.5 rounded border border-gray-300 text-sm hover:bg-gray-50">Imprimir</button>
+  </div>
+</div>
+{% endblock %}

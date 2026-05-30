@@ -1,0 +1,10 @@
+{% extends "_shell.html" %}
+
+{% block title %}Painel — SGR{% endblock %}
+{% block shell_group %}Painel{% endblock %}
+
+{% block shell_nav %}
+  {% url 'relatorios:dashboard' as u %}{% include "components/_navlink.html" with url=u label="Dashboard" name="dashboard" %}
+{% endblock %}
+
+{% block shell_content %}{% block relatorios_content %}{% endblock %}{% endblock %}

@@ -84,6 +84,21 @@ class CancelarItemForm(forms.Form):
 class PagarPedidoForm(forms.Form):
     """Fechamento de pedido (§4.3): valor pago deve cobrir o total."""
 
+    FORMA_CHOICES = [
+        ("dinheiro", "Dinheiro"),
+        ("debito", "Débito"),
+        ("credito", "Crédito"),
+        ("pix", "Pix"),
+        ("voucher", "Voucher"),
+    ]
+
+    forma = forms.ChoiceField(
+        choices=FORMA_CHOICES,
+        required=False,
+        initial="dinheiro",
+        widget=forms.Select(attrs={"class": INPUT_CLASS}),
+        label="Forma de pagamento",
+    )
     desconto = forms.DecimalField(
         min_value=Decimal("0"),
         max_digits=10,

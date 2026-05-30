@@ -1,0 +1,82 @@
+{% extends "financeiro/_layout.html" %}
+
+{% block financeiro_content %}
+<div class="flex items-center justify-between mb-4">
+  <h1 class="text-2xl font-bold">Turno de {{ turno.aberto_em|date:"d/m/Y H:i" }}</h1>
+  <a href="{% url 'financeiro:turno_list' %}" class="text-sm text-indigo-600 hover:underline">← Histórico</a>
+</div>
+
+<div class="grid gap-4 md:grid-cols-4 mb-6">
+  <div class="bg-white rounded-lg shadow p-4">
+    <p class="text-xs text-gray-500 uppercase">Abertura</p>
+    <p class="text-xl font-bold">R$ {{ turno.valor_abertura }}</p>
+    <p class="text-xs text-gray-400">{{ turno.usuario|default:"—" }}</p>
+  </div>
+  <div class="bg-white rounded-lg shadow p-4">
+    <p class="text-xs text-gray-500 uppercase">Recebido</p>
+    <p class="text-xl font-bold">R$ {{ resumo.total_pagamentos }}</p>
+    <p class="text-xs text-gray-400">dinheiro R$ {{ resumo.dinheiro }}</p>
+  </div>
+  <div class="bg-white rounded-lg shadow p-4">
+    <p class="text-xs text-gray-500 uppercase">Saldo esperado</p>
+    <p class="text-xl font-bold">R$ {{ resumo.saldo_esperado }}</p>
+    <p class="text-xs text-gray-400">sangria R$ {{ resumo.sangrias }} · supr. R$ {{ resumo.suprimentos }}</p>
+  </div>
+  <div class="bg-white rounded-lg shadow p-4">
+    <p class="text-xs text-gray-500 uppercase">Contado / Diferença</p>
+    {% if turno.valor_fechamento is None %}
+      <p class="text-xl font-bold text-green-700">Aberto</p>
+    {% else %}
+      <p class="text-xl font-bold">R$ {{ turno.valor_fechamento }}</p>
+      <p class="text-xs {% if diferenca < 0 %}text-red-600{% elif diferenca > 0 %}text-amber-600{% else %}text-green-600{% endif %}">
+        dif. R$ {{ diferenca }}
+      </p>
+    {% endif %}
+  </div>
+</div>
+
+<div class="grid gap-4 lg:grid-cols-2">
+  {# Pagamentos #}
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <h2 class="font-bold text-sm text-gray-600 px-4 py-2 border-b">Pagamentos ({{ resumo.num_pagamentos }})</h2>
+    <table class="w-full text-sm">
+      <tbody class="divide-y divide-gray-100">
+        {% for pag in pagamentos %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-2">
+            {% if pag.pedido.mesa %}Mesa {{ pag.pedido.mesa.numero }}{% else %}Balcão{% endif %}
+          </td>
+          <td class="px-4 py-2 text-gray-500">{{ pag.get_forma_display }}</td>
+          <td class="px-4 py-2 text-gray-400">{{ pag.criado_em|date:"H:i" }}</td>
+          <td class="px-4 py-2 text-right font-medium">R$ {{ pag.valor }}</td>
+          <td class="px-4 py-2 text-right">
+            <a href="{% url 'financeiro:recibo' pag.pedido.pk %}" class="text-indigo-600 hover:underline">recibo</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="px-4 py-6 text-center text-gray-400">Sem pagamentos.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {# Movimentações #}
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <h2 class="font-bold text-sm text-gray-600 px-4 py-2 border-b">Movimentações</h2>
+    <table class="w-full text-sm">
+      <tbody class="divide-y divide-gray-100">
+        {% for mov in movimentacoes %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-2 font-medium">{{ mov.get_tipo_display }}</td>
+          <td class="px-4 py-2 text-gray-500">{{ mov.motivo|default:"—" }}</td>
+          <td class="px-4 py-2 text-gray-400">{{ mov.autorizado_por|default:"—" }}</td>
+          <td class="px-4 py-2 text-right">R$ {{ mov.valor }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="px-4 py-6 text-center text-gray-400">Sem movimentações.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

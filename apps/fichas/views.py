@@ -91,7 +91,7 @@ class FichaFormMixin:
 
 
 class FichaTecnicaCreateView(FichasAccessMixin, FichaFormMixin, CreateView):
-    titulo = "Nova ficha técnica"
+    titulo = "Nova receita"
 
     def carregar_objeto(self):
         return None
@@ -100,7 +100,7 @@ class FichaTecnicaCreateView(FichasAccessMixin, FichaFormMixin, CreateView):
 class FichaTecnicaUpdateView(
     FichasAccessMixin, TenantQuerysetMixin, FichaFormMixin, UpdateView
 ):
-    titulo = "Editar ficha técnica"
+    titulo = "Editar receita"
 
     def carregar_objeto(self):
         return self.get_object()
@@ -119,7 +119,7 @@ class FichaTecnicaDeleteView(FichasAccessMixin, TenantQuerysetMixin, DeleteView)
             return self.render_to_response(
                 self.get_context_data(
                     object=self.object,
-                    erro="Não é possível excluir: há um prato vinculado a esta ficha.",
+                    erro="Não é possível excluir: há um prato vinculado a esta receita.",
                 )
             )
         return redirect(self.get_success_url())

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 # Perfil -> URL name de redirecionamento pós-login (§5).
 PERFIL_REDIRECT: dict[str, str] = {
-    "admin": "relatorios:dashboard",
-    "gerente": "relatorios:dashboard",
+    "admin": "home",
+    "gerente": "home",
     "garcom": "pedidos:mesas",
     "cozinheiro": "pedidos:kds",
     "caixa": "pedidos:caixa",
