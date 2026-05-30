@@ -110,3 +110,21 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "usuarios:login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "usuarios:login"
+
+# --------------------------------------------------------------------------- #
+# Endurecimento de segurança (apenas em produção: DEBUG=False).
+# Em desenvolvimento (DEBUG=True) tudo fica desligado para não exigir HTTPS.
+# --------------------------------------------------------------------------- #
+X_FRAME_OPTIONS = "DENY"
+
+if not DEBUG:
+    # Servido atrás de proxy/balancer que termina TLS e seta X-Forwarded-Proto.
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    SECURE_SSL_REDIRECT = True
+    # HSTS: 1 ano, incluindo subdomínios e elegível a preload.
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    # Cookies só por HTTPS.
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True

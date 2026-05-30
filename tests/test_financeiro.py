@@ -192,6 +192,32 @@ def test_resumo_turno_calcula_saldo_esperado(client, make_perfil, restaurante, p
     assert resumo["saldo_esperado"] == Decimal("150.00")
 
 
+def test_resumo_turno_consolida_em_duas_queries(
+    django_assert_num_queries, make_perfil, restaurante, prato
+):
+    """Regressão de performance: resumo_turno deve usar um número fixo de queries
+    (1 agrupada por forma + 1 agrupada por tipo de movimentação), independentemente
+    do número de formas de pagamento — evita o N+1 ao listar o histórico."""
+    caixa = make_perfil("caixa")
+    turno = _turno(restaurante, usuario=caixa)
+    pedido = _pedido_com_item(restaurante, prato)
+    for forma in ("dinheiro", "pix", "credito", "debito"):
+        Pagamento.objects.create(
+            pedido=pedido, forma=forma, valor=Decimal("10.00"), usuario=caixa
+        )
+    MovimentacaoCaixa.objects.create(
+        turno=turno, tipo="suprimento", valor=Decimal("5.00"), usuario=caixa
+    )
+    MovimentacaoCaixa.objects.create(
+        turno=turno, tipo="sangria", valor=Decimal("3.00"), usuario=caixa
+    )
+    with django_assert_num_queries(2):
+        resumo = resumo_turno(turno)
+    assert resumo["num_pagamentos"] == 4
+    assert resumo["total_pagamentos"] == Decimal("40.00")
+    assert resumo["dinheiro"] == Decimal("10.00")
+
+
 def test_fechar_turno_define_fechamento(client, make_perfil, restaurante):
     caixa = make_perfil("caixa")
     client.force_login(caixa)
