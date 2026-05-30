@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{# ------------------------------------------------------------------------- #}
+{# Shell com sidebar unificada. Cada grupo de telas (estoque, pedidos,        #}
+{# financeiro, fichas) estende este template e preenche os blocos:           #}
+{#   shell_group     -> rótulo curto do grupo (topo mobile + subtítulo)       #}
+{#   shell_nav       -> itens de navegação (use components/_navlink.html)     #}
+{#   shell_content   -> conteúdo da página                                    #}
+{# ------------------------------------------------------------------------- #}
+
+{% block body %}
+<div x-data="{ sidebar: false }" class="min-h-screen lg:flex">
+
+  {# ----------------------------------------------------- Topbar (mobile) #}
+  <div class="lg:hidden sticky top-0 z-30 flex items-center gap-3 bg-indigo-800 text-white px-4 py-3 shadow">
+    <button @click="sidebar = true" aria-label="Abrir menu"
+            class="-ml-1 p-1 rounded hover:bg-white/10">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+    </button>
+    <a href="{% url 'home' %}" class="font-bold">SGR</a>
+  </div>
+
+  {# ---------------------------------------------------- Backdrop (mobile) #}
+  <div x-show="sidebar" x-cloak @click="sidebar = false"
+       class="fixed inset-0 z-40 bg-black/40 lg:hidden"></div>
+
+  {# ------------------------------------------------------------- Sidebar #}
+  <aside x-cloak
+         :class="sidebar ? 'translate-x-0' : '-translate-x-full'"
+         class="fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-indigo-800 text-white transform transition-transform duration-200 ease-out lg:!translate-x-0 lg:static lg:z-auto lg:shrink-0 lg:sticky lg:top-0 lg:h-screen">
+    <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
+      <a href="{% url 'home' %}" class="flex flex-col leading-none">
+        <span class="font-bold text-lg">SGR</span>
+        <span class="mt-1 text-xs text-indigo-300">{% block shell_group %}{% endblock %}</span>
+      </a>
+      <button @click="sidebar = false" aria-label="Fechar menu"
+              class="lg:hidden p-1 rounded hover:bg-white/10">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+      {% block shell_nav %}{% endblock %}
+    </nav>
+
+    <div class="border-t border-white/10 p-3 space-y-1">
+      <a href="{% url 'home' %}"
+         class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-indigo-100 hover:bg-white/10 hover:text-white transition-colors">
+        <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+        Início
+      </a>
+      <div class="px-3 pt-1">
+        <p class="text-sm font-medium capitalize">{{ request.user.perfil.get_perfil_display }}</p>
+        <p class="text-xs text-indigo-300 truncate">{{ request.user.perfil.restaurante.nome }}</p>
+      </div>
+      <form method="post" action="{% url 'usuarios:logout' %}">
+        {% csrf_token %}
+        <button type="submit"
+                class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-indigo-100 hover:bg-white/10 hover:text-white transition-colors">
+          <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/></svg>
+          Sair
+        </button>
+      </form>
+    </div>
+  </aside>
+
+  {# ---------------------------------------------------------------- Main #}
+  <div class="flex-1 min-w-0 bg-gray-100">
+    <main class="p-4 sm:p-6 lg:p-8">
+      {% block shell_content %}{% endblock %}
+    </main>
+  </div>
+</div>
+
+{# Container dos modais HTMX #}
+<div id="modal"></div>
+{% endblock %}

@@ -176,7 +176,7 @@ class IngredienteDeleteView(EstoqueAccessMixin, TenantQuerysetMixin, DeleteView)
             self.object.delete()
         except ProtectedError:
             ctx = self.get_context_data(object=self.object)
-            ctx["erro"] = "Não é possível excluir: há entradas, ajustes ou fichas vinculadas."
+            ctx["erro"] = "Não é possível excluir: há entradas, ajustes ou receitas vinculadas."
             return self.render_to_response(ctx)
         return _trigger_response()
 

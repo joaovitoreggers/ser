@@ -2,10 +2,10 @@
 
 {% block fichas_content %}
 <div class="flex items-center justify-between mb-4">
-  <h1 class="text-2xl font-bold">Fichas técnicas</h1>
+  <h1 class="text-2xl font-bold">Receitas</h1>
   <a href="{% url 'fichas:ficha_nova' %}"
      class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">
-    + Nova ficha
+    + Nova receita
   </a>
 </div>
 
@@ -39,7 +39,7 @@
         </td>
       </tr>
       {% empty %}
-      <tr><td colspan="7" class="px-4 py-6 text-center text-gray-400">Nenhuma ficha técnica cadastrada.</td></tr>
+      <tr><td colspan="7" class="px-4 py-6 text-center text-gray-400">Nenhuma receita cadastrada.</td></tr>
       {% endfor %}
     </tbody>
   </table>

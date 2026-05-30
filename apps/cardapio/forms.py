@@ -65,6 +65,9 @@ class PratoForm(TenantModelForm):
             "disponivel",
             "motivo_indisponivel",
         ]
+        labels = {
+            "ficha": "Receita",
+        }
         widgets = {
             "motivo_indisponivel": forms.Textarea(attrs={"rows": 2}),
         }

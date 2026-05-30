@@ -1,26 +1,8 @@
-{% extends "base.html" %}
+{% extends "_shell.html" %}
 
-{% block title %}Fichas Técnicas — SGR{% endblock %}
+{% block title %}Receitas — SGR{% endblock %}
+{% block shell_group %}Receitas & Cardápio{% endblock %}
 
-{% block body %}
-<div class="min-h-screen">
-  <nav class="bg-indigo-700 text-white px-6 py-3 flex items-center gap-6">
-    <span class="font-bold">SGR · Fichas Técnicas</span>
-    <a href="{% url 'fichas:ficha_list' %}" class="hover:underline">Fichas</a>
-    <a href="{% url 'cardapio:prato_list' %}" class="hover:underline">Cardápio</a>
-    <a href="{% url 'estoque:home' %}" class="hover:underline">Estoque</a>
-    {% if request.user.perfil.perfil == 'admin' or request.user.perfil.perfil == 'gerente' %}
-    <a href="{% url 'financeiro:home' %}" class="hover:underline">Financeiro</a>
-    <a href="{% url 'relatorios:dashboard' %}" class="hover:underline">Dashboard</a>
-    {% endif %}
-    <form method="post" action="{% url 'usuarios:logout' %}" class="ml-auto">
-      {% csrf_token %}
-      <button type="submit" class="hover:underline">Sair</button>
-    </form>
-  </nav>
+{% block shell_nav %}{% include "components/_nav_fichas.html" %}{% endblock %}
 
-  <main class="p-6 max-w-5xl mx-auto">
-    {% block fichas_content %}{% endblock %}
-  </main>
-</div>
-{% endblock %}
+{% block shell_content %}{% block fichas_content %}{% endblock %}{% endblock %}

@@ -1,8 +1,11 @@
 from django.contrib import admin
 from django.urls import include, path
 
+from apps.relatorios.views import HomeView
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("", HomeView.as_view(), name="home"),
     path("", include("apps.usuarios.urls")),
     path("relatorios/", include("apps.relatorios.urls")),
     path("pedidos/", include("apps.pedidos.urls")),

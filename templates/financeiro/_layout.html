@@ -1,28 +1,12 @@
-{% extends "base.html" %}
+{% extends "_shell.html" %}
 
 {% block title %}Financeiro — SGR{% endblock %}
+{% block shell_group %}Financeiro{% endblock %}
 
-{% block body %}
-<div class="min-h-screen">
-  <nav class="bg-indigo-700 text-white px-6 py-3 flex items-center gap-6">
-    <span class="font-bold">SGR · Financeiro</span>
-    <a href="{% url 'financeiro:home' %}" class="hover:underline">Caixa</a>
-    <a href="{% url 'financeiro:turno_list' %}" class="hover:underline">Histórico</a>
-    <a href="{% url 'pedidos:caixa' %}" class="hover:underline">Pedidos a pagar</a>
-    {% if request.user.perfil.perfil == 'admin' or request.user.perfil.perfil == 'gerente' %}
-    <a href="{% url 'relatorios:dashboard' %}" class="hover:underline">Dashboard</a>
-    {% endif %}
-    <form method="post" action="{% url 'usuarios:logout' %}" class="ml-auto">
-      {% csrf_token %}
-      <button type="submit" class="hover:underline">Sair</button>
-    </form>
-  </nav>
-
-  <main class="p-6 max-w-5xl mx-auto">
-    {% block financeiro_content %}{% endblock %}
-  </main>
-
-  {# Container dos modais HTMX #}
-  <div id="modal"></div>
-</div>
+{% block shell_nav %}
+  {% url 'financeiro:home' as u %}{% include "components/_navlink.html" with url=u label="Caixa" name="home" %}
+  {% url 'financeiro:turno_list' as u %}{% include "components/_navlink.html" with url=u label="Histórico de turnos" name="turno_list" %}
+  {% url 'pedidos:caixa' as u %}{% include "components/_navlink.html" with url=u label="Pedidos a pagar" name="caixa" %}
 {% endblock %}
+
+{% block shell_content %}{% block financeiro_content %}{% endblock %}{% endblock %}

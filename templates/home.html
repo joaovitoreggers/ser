@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Início — SGR{% endblock %}
+
+{% block body %}
+<div class="min-h-screen">
+  {# ---------------------------------------------------------------- Topbar #}
+  <header class="bg-indigo-700 text-white">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex items-center gap-4">
+      <span class="font-bold text-lg tracking-tight">SGR</span>
+      <span class="text-indigo-200 hidden sm:inline">·</span>
+      <span class="text-indigo-100 hidden sm:inline truncate">{{ restaurante.nome }}</span>
+      <div class="ml-auto flex items-center gap-4 text-sm">
+        <span class="hidden sm:inline px-2 py-0.5 rounded-full bg-indigo-600/60 text-indigo-50 capitalize">{{ perfil_label }}</span>
+        <form method="post" action="{% url 'usuarios:logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="hover:underline text-indigo-100">Sair</button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-6 py-8">
+    {# ------------------------------------------------------ Cabeçalho #}
+    <div class="flex items-end justify-between mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Visão geral</h1>
+        <p class="text-sm text-gray-500">Indicadores de hoje · {{ hoje|date:"d/m/Y" }}</p>
+      </div>
+    </div>
+
+    {# ------------------------------------------------- Dashboard geral #}
+    <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-10">
+      {% if is_gestor %}
+      <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-200 p-4">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Faturamento</p>
+        <p class="mt-1 text-2xl font-bold text-emerald-600">R$ {{ faturamento }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">pedidos pagos hoje</p>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-200 p-4">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Pedidos pagos</p>
+        <p class="mt-1 text-2xl font-bold text-gray-900">{{ num_pedidos }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">ticket médio R$ {{ ticket_medio|floatformat:2 }}</p>
+      </div>
+      <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-200 p-4">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Caixa</p>
+        {% if turno %}
+        <p class="mt-1 text-2xl font-bold text-indigo-600">Aberto</p>
+        <p class="text-xs text-gray-400 mt-0.5">saldo esperado R$ {{ resumo.saldo_esperado }}</p>
+        {% else %}
+        <p class="mt-1 text-2xl font-bold text-gray-400">Fechado</p>
+        <a href="{% url 'financeiro:home' %}" class="text-xs text-indigo-600 hover:underline">abrir caixa</a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-200 p-4">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Pedidos em aberto</p>
+        <p class="mt-1 text-2xl font-bold text-gray-900">{{ pedidos_abertos }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">{{ itens_cozinha }} item(ns) na cozinha</p>
+      </div>
+
+      {% if not is_gestor %}
+      <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-200 p-4">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Na cozinha</p>
+        <p class="mt-1 text-2xl font-bold text-gray-900">{{ itens_cozinha }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">itens em preparo/prontos</p>
+      </div>
+      {% endif %}
+
+      <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-200 p-4 {% if estoque_critico %}ring-red-200 bg-red-50{% endif %}">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Estoque crítico</p>
+        <p class="mt-1 text-2xl font-bold {% if estoque_critico %}text-red-600{% else %}text-gray-900{% endif %}">{{ estoque_critico }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">ingredientes no/abaixo do mínimo</p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm ring-1 ring-gray-200 p-4 {% if pratos_indisponiveis %}ring-amber-200 bg-amber-50{% endif %}">
+        <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">Pratos indisponíveis</p>
+        <p class="mt-1 text-2xl font-bold {% if pratos_indisponiveis %}text-amber-600{% else %}text-gray-900{% endif %}">{{ pratos_indisponiveis }}</p>
+        <p class="text-xs text-gray-400 mt-0.5">fora do cardápio</p>
+      </div>
+    </section>
+
+    {# ---------------------------------------------------- Acesso rápido #}
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Acessar recursos</h2>
+    <section class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+
+      {% if pode_estoque %}
+      <a href="{% url 'estoque:home' %}"
+         class="group relative bg-white rounded-2xl ring-1 ring-gray-200 p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 text-amber-700">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+        </span>
+        <h3 class="mt-4 text-base font-semibold text-gray-900">Estoque</h3>
+        <p class="mt-1 text-sm text-gray-500">Ingredientes, fornecedores, entradas e ajustes.</p>
+        {% if estoque_critico %}<span class="absolute top-4 right-4 inline-flex items-center rounded-full bg-red-100 text-red-700 text-xs font-semibold px-2 py-0.5">{{ estoque_critico }} crítico(s)</span>{% endif %}
+      </a>
+      {% endif %}
+
+      {% if pode_pedidos %}
+      <a href="{% url 'pedidos:mesas' %}"
+         class="group relative bg-white rounded-2xl ring-1 ring-gray-200 p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-100 text-indigo-700">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 3.75h6M9 8.25h6M5.625 3.75h12.75c.621 0 1.125.504 1.125 1.125v14.25c0 .621-.504 1.125-1.125 1.125H5.625A1.125 1.125 0 014.5 19.125V4.875c0-.621.504-1.125 1.125-1.125z"/></svg>
+        </span>
+        <h3 class="mt-4 text-base font-semibold text-gray-900">Pedidos</h3>
+        <p class="mt-1 text-sm text-gray-500">Salão, cozinha (KDS) e caixa.</p>
+        {% if pedidos_abertos %}<span class="absolute top-4 right-4 inline-flex items-center rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold px-2 py-0.5">{{ pedidos_abertos }} aberto(s)</span>{% endif %}
+      </a>
+      {% endif %}
+
+      {% if pode_financeiro %}
+      <a href="{% url 'financeiro:home' %}"
+         class="group relative bg-white rounded-2xl ring-1 ring-gray-200 p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
+        </span>
+        <h3 class="mt-4 text-base font-semibold text-gray-900">Financeiro</h3>
+        <p class="mt-1 text-sm text-gray-500">Caixa, turnos e pagamentos.</p>
+        <span class="absolute top-4 right-4 inline-flex items-center rounded-full text-xs font-semibold px-2 py-0.5 {% if turno %}bg-emerald-100 text-emerald-700{% else %}bg-gray-100 text-gray-500{% endif %}">{% if turno %}caixa aberto{% else %}caixa fechado{% endif %}</span>
+      </a>
+      {% endif %}
+
+      {% if pode_fichas %}
+      <a href="{% url 'fichas:ficha_list' %}"
+         class="group relative bg-white rounded-2xl ring-1 ring-gray-200 p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+        <span class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-rose-100 text-rose-700">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+        </span>
+        <h3 class="mt-4 text-base font-semibold text-gray-900">Receitas</h3>
+        <p class="mt-1 text-sm text-gray-500">Receitas e cardápio.</p>
+        {% if pratos_indisponiveis %}<span class="absolute top-4 right-4 inline-flex items-center rounded-full bg-amber-100 text-amber-700 text-xs font-semibold px-2 py-0.5">{{ pratos_indisponiveis }} fora</span>{% endif %}
+      </a>
+      {% endif %}
+    </section>
+  </main>
+</div>
+{% endblock %}

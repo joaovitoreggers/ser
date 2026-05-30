@@ -1,29 +1,13 @@
-{% extends "base.html" %}
+{% extends "_shell.html" %}
 
 {% block title %}Pedidos — SGR{% endblock %}
+{% block shell_group %}Pedidos{% endblock %}
 
-{% block body %}
-<div class="min-h-screen">
-  <nav class="bg-indigo-700 text-white px-6 py-3 flex items-center gap-6">
-    <span class="font-bold">SGR · Pedidos</span>
-    <a href="{% url 'pedidos:mesas' %}" class="hover:underline">Mesas</a>
-    <a href="{% url 'pedidos:kds' %}" class="hover:underline">Cozinha</a>
-    <a href="{% url 'pedidos:caixa' %}" class="hover:underline">Caixa</a>
-    <a href="{% url 'financeiro:home' %}" class="hover:underline">Financeiro</a>
-    {% if request.user.perfil.perfil == 'admin' or request.user.perfil.perfil == 'gerente' %}
-    <a href="{% url 'relatorios:dashboard' %}" class="hover:underline">Dashboard</a>
-    {% endif %}
-    <form method="post" action="{% url 'usuarios:logout' %}" class="ml-auto">
-      {% csrf_token %}
-      <button type="submit" class="hover:underline">Sair</button>
-    </form>
-  </nav>
-
-  <main class="p-6 max-w-6xl mx-auto">
-    {% block pedidos_content %}{% endblock %}
-  </main>
-
-  {# Container dos modais HTMX #}
-  <div id="modal"></div>
-</div>
+{% block shell_nav %}
+  {% url 'pedidos:mesas' as u %}{% include "components/_navlink.html" with url=u label="Mesas" name="mesas" %}
+  {% url 'pedidos:kds' as u %}{% include "components/_navlink.html" with url=u label="Cozinha (KDS)" name="kds" %}
+  {% url 'pedidos:caixa' as u %}{% include "components/_navlink.html" with url=u label="Caixa" name="caixa" %}
+  {% url 'pedidos:mesa_list' as u %}{% include "components/_navlink.html" with url=u label="Gerenciar mesas" name="mesa_list" %}
 {% endblock %}
+
+{% block shell_content %}{% block pedidos_content %}{% endblock %}{% endblock %}

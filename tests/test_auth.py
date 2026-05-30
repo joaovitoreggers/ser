@@ -36,8 +36,8 @@ def test_grupos_rbac_criados_com_permissoes():
 @pytest.mark.parametrize(
     "perfil,destino",
     [
-        ("admin", "/relatorios/dashboard/"),
-        ("gerente", "/relatorios/dashboard/"),
+        ("admin", "/"),
+        ("gerente", "/"),
         ("garcom", "/pedidos/mesas/"),
         ("cozinheiro", "/pedidos/kds/"),
         ("caixa", "/pedidos/caixa/"),
