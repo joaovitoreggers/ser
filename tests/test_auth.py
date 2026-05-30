@@ -96,3 +96,18 @@ def test_pin_login_rejeita_pin_errado(client, make_perfil):
     )
     assert resp.status_code == 401
     assert resp.json()["ok"] is False
+
+
+def test_pin_pad_renderiza_para_anonimo(client):
+    """A tela de teclado numérico (§5) é pública e aponta o fetch ao pin_login."""
+    resp = client.get(reverse("usuarios:pin_pad"))
+    assert resp.status_code == 200
+    body = resp.content.decode()
+    assert "pinPad(" in body  # componente Alpine do teclado
+    assert reverse("usuarios:pin_login") in body  # destino do POST
+    assert "csrfmiddlewaretoken" in body  # token disponível para o fetch
+
+
+def test_login_tem_link_para_pin_pad(client):
+    body = client.get(reverse("usuarios:login")).content.decode()
+    assert reverse("usuarios:pin_pad") in body

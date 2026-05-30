@@ -6,6 +6,7 @@ from django.contrib.auth.views import LoginView
 from django.http import HttpRequest, JsonResponse
 from django.urls import reverse
 from django.views.decorators.http import require_POST
+from django.views.generic import TemplateView
 
 from .rbac import PERFIL_REDIRECT
 
@@ -24,6 +25,16 @@ class PerfilLoginView(LoginView):
     def get_success_url(self) -> str:
         url = self.get_redirect_url()  # respeita ?next=
         return url or redirect_para_perfil(self.request.user)
+
+
+class PinPadView(TemplateView):
+    """Tela de acesso rápido por teclado numérico para tablets (§5).
+
+    Renderiza o teclado (Alpine.js) que envia usuário + PIN ao endpoint
+    ``pin_login`` via fetch; a validação do ``pin_hash`` continua no servidor.
+    """
+
+    template_name = "registration/pin_login.html"
 
 
 @require_POST
