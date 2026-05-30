@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from decimal import Decimal
 
-from django.db.models import Sum
+from django.db.models import Count, Sum
 
 from .models import MovimentacaoCaixa, Pagamento, TurnoCaixa
 
@@ -38,27 +38,31 @@ def resumo_turno(turno: TurnoCaixa) -> dict:
 
     Saldo esperado (gaveta) = abertura + dinheiro recebido + suprimentos − sangrias.
     Formas eletrônicas (débito/crédito/pix/voucher/fiado) não alteram a gaveta."""
-    pagamentos = pagamentos_do_turno(turno)
+    # Uma única query agrupada por forma (em vez de uma por forma + totais
+    # separados): evita N+1 quando chamado em loop (ex.: histórico de turnos).
     por_forma: dict[str, Decimal] = {}
-    for forma, _label in Pagamento.Forma.choices:
-        total = pagamentos.filter(forma=forma).aggregate(s=Sum("valor"))["s"] or ZERO
+    total_pagamentos = ZERO
+    num_pagamentos = 0
+    for row in (
+        pagamentos_do_turno(turno)
+        .values("forma")
+        .annotate(total=Sum("valor"), n=Count("id"))
+    ):
+        total = row["total"] or ZERO
         if total:
-            por_forma[forma] = total
+            por_forma[row["forma"]] = total
+        total_pagamentos += total
+        num_pagamentos += row["n"]
 
-    total_pagamentos = pagamentos.aggregate(s=Sum("valor"))["s"] or ZERO
     dinheiro = por_forma.get(Pagamento.Forma.DINHEIRO, ZERO)
 
-    movs = turno.movimentacoes.all()
-    sangrias = (
-        movs.filter(tipo=MovimentacaoCaixa.Tipo.SANGRIA).aggregate(s=Sum("valor"))["s"]
-        or ZERO
-    )
-    suprimentos = (
-        movs.filter(tipo=MovimentacaoCaixa.Tipo.SUPRIMENTO).aggregate(s=Sum("valor"))[
-            "s"
-        ]
-        or ZERO
-    )
+    # Uma única query agrupada por tipo de movimentação.
+    movs_por_tipo = {
+        row["tipo"]: (row["total"] or ZERO)
+        for row in turno.movimentacoes.values("tipo").annotate(total=Sum("valor"))
+    }
+    sangrias = movs_por_tipo.get(MovimentacaoCaixa.Tipo.SANGRIA, ZERO)
+    suprimentos = movs_por_tipo.get(MovimentacaoCaixa.Tipo.SUPRIMENTO, ZERO)
 
     saldo_esperado = turno.valor_abertura + dinheiro + suprimentos - sangrias
 
@@ -69,5 +73,5 @@ def resumo_turno(turno: TurnoCaixa) -> dict:
         "sangrias": sangrias,
         "suprimentos": suprimentos,
         "saldo_esperado": saldo_esperado,
-        "num_pagamentos": pagamentos.count(),
+        "num_pagamentos": num_pagamentos,
     }
