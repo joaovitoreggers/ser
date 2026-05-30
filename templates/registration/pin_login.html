@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SGR — Acesso rápido</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>[x-cloak]{display:none !important;}</style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-indigo-800 to-indigo-950 flex items-center justify-center p-4">
+  {# token CSRF para o fetch ao endpoint pin_login #}
+  {% csrf_token %}
+
+  <div x-data="pinPad('{% url 'usuarios:pin_login' %}')" x-cloak
+       class="w-full max-w-sm bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+    <div class="text-center mb-5">
+      <h1 class="text-2xl font-bold text-indigo-800">SGR</h1>
+      <p class="text-sm text-gray-500">Acesso rápido por PIN</p>
+    </div>
+
+    <label class="block text-sm font-medium text-gray-700 mb-1" for="pin-usuario">Usuário</label>
+    <input id="pin-usuario" type="text" x-model="usuario" autocomplete="username"
+           inputmode="text" autofocus
+           class="w-full border border-gray-300 rounded-lg px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+           placeholder="seu usuário">
+
+    {# Visor do PIN (mascarado): no mínimo 4 marcadores, cresce até 8 #}
+    <div class="flex items-center justify-center gap-2 h-10 mb-1" aria-label="PIN">
+      <template x-for="i in Math.max(4, pin.length)" :key="i">
+        <span class="w-3 h-3 rounded-full transition-colors"
+              :class="i <= pin.length ? 'bg-indigo-600' : 'bg-gray-200'"></span>
+      </template>
+    </div>
+
+    <p class="text-center text-sm text-red-600 h-5 mb-2" role="alert" x-text="erro"></p>
+
+    {# Teclado numérico #}
+    <div class="grid grid-cols-3 gap-2">
+      <template x-for="d in ['1','2','3','4','5','6','7','8','9']" :key="d">
+        <button type="button" @click="digito(d)"
+                class="py-4 text-xl font-semibold bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-lg"
+                x-text="d"></button>
+      </template>
+      <button type="button" @click="limpa()"
+              class="py-4 text-sm font-semibold bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600">Limpar</button>
+      <button type="button" @click="digito('0')"
+              class="py-4 text-xl font-semibold bg-gray-100 hover:bg-gray-200 active:bg-gray-300 rounded-lg">0</button>
+      <button type="button" @click="apaga()" aria-label="Apagar"
+              class="py-4 text-xl font-semibold bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600">&#9003;</button>
+    </div>
+
+    <button type="button" @click="enviar()" :disabled="carregando"
+            class="w-full mt-4 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-semibold">
+      <span x-show="!carregando">Entrar</span>
+      <span x-show="carregando">Entrando…</span>
+    </button>
+
+    <p class="text-center mt-4 text-sm">
+      <a href="{% url 'usuarios:login' %}" class="text-indigo-600 hover:underline">Entrar com usuário e senha</a>
+    </p>
+  </div>
+
+  <script>
+    function pinPad(url) {
+      return {
+        url: url,
+        usuario: '',
+        pin: '',
+        erro: '',
+        carregando: false,
+        digito(d) {
+          this.erro = '';
+          if (this.pin.length < 8) this.pin += d;
+        },
+        apaga() { this.pin = this.pin.slice(0, -1); },
+        limpa() { this.pin = ''; this.erro = ''; },
+        token() {
+          var el = document.querySelector('input[name=csrfmiddlewaretoken]');
+          return el ? el.value : '';
+        },
+        async enviar() {
+          if (this.carregando) return;
+          if (!this.usuario.trim() || !this.pin) {
+            this.erro = 'Informe usuário e PIN.';
+            return;
+          }
+          this.carregando = true;
+          this.erro = '';
+          try {
+            var resp = await fetch(this.url, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': this.token(),
+              },
+              body: new URLSearchParams({
+                username: this.usuario.trim(),
+                pin: this.pin,
+                csrfmiddlewaretoken: this.token(),
+              }),
+            });
+            var data = await resp.json().catch(function () { return {}; });
+            if (resp.ok && data.ok) {
+              window.location = data.redirect || '/';
+              return;
+            }
+            this.erro = data.erro || 'Credenciais inválidas.';
+            this.pin = '';
+          } catch (e) {
+            this.erro = 'Falha de conexão. Tente novamente.';
+          } finally {
+            this.carregando = false;
+          }
+        },
+        init() {
+          var self = this;
+          window.addEventListener('keydown', function (ev) {
+            var alvo = ev.target;
+            if (alvo && alvo.id === 'pin-usuario') return;  // deixa digitar o usuário
+            if (ev.key >= '0' && ev.key <= '9') { self.digito(ev.key); }
+            else if (ev.key === 'Backspace') { ev.preventDefault(); self.apaga(); }
+            else if (ev.key === 'Enter') { ev.preventDefault(); self.enviar(); }
+          });
+        },
+      };
+    }
+  </script>
+</body>
+</html>
