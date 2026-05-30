@@ -44,6 +44,7 @@ class HomeView(TenantMixin, View):
                 in ("admin", "gerente", "garcom", "cozinheiro", "caixa"),
                 "pode_financeiro": perfil in ("admin", "gerente", "caixa"),
                 "pode_fichas": perfil in ("admin", "gerente"),
+                "pode_usuarios": perfil in ("admin", "gerente"),
             }
         )
         return render(request, self.template_name, ctx)

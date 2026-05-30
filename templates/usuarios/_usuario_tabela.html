@@ -1,0 +1,49 @@
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-left text-gray-600">
+      <tr>
+        <th class="px-4 py-2">Usuário</th>
+        <th class="px-4 py-2">Nome</th>
+        <th class="px-4 py-2">Perfil</th>
+        <th class="px-4 py-2">PIN</th>
+        <th class="px-4 py-2">Status</th>
+        <th class="px-4 py-2 text-right">Ações</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for p in object_list %}
+      <tr class="hover:bg-gray-50">
+        <td class="px-4 py-2 font-medium">{{ p.user.username }}</td>
+        <td class="px-4 py-2">{{ p.user.get_full_name|default:"—" }}</td>
+        <td class="px-4 py-2 capitalize">{{ p.get_perfil_display }}</td>
+        <td class="px-4 py-2">
+          {% if p.pin_hash %}<span class="text-emerald-600">definido</span>
+          {% else %}<span class="text-gray-400">—</span>{% endif %}
+        </td>
+        <td class="px-4 py-2">
+          {% if p.user.is_active %}
+          <span class="inline-flex rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-xs font-semibold">Ativo</span>
+          {% else %}
+          <span class="inline-flex rounded-full bg-gray-100 text-gray-500 px-2 py-0.5 text-xs font-semibold">Inativo</span>
+          {% endif %}
+        </td>
+        <td class="px-4 py-2 text-right whitespace-nowrap">
+          <button hx-get="{% url 'usuarios:usuario_editar' p.pk %}"
+                  hx-target="#modal" hx-swap="innerHTML"
+                  class="text-indigo-600 hover:underline">Editar</button>
+          {% if p.user_id != request.user.id %}
+          <button hx-post="{% url 'usuarios:usuario_status' p.pk %}"
+                  hx-target="#modal" hx-swap="innerHTML"
+                  hx-confirm="{% if p.user.is_active %}Desativar{% else %}Ativar{% endif %} o acesso de {{ p.user.username }}?"
+                  class="ml-3 {% if p.user.is_active %}text-red-600{% else %}text-emerald-600{% endif %} hover:underline">
+            {% if p.user.is_active %}Desativar{% else %}Ativar{% endif %}
+          </button>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" class="px-4 py-6 text-center text-gray-400">Nenhum usuário cadastrado.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

@@ -33,7 +33,9 @@ GROUP_PERMISSIONS: dict[str, list[tuple[str, str, list[str]]]] = {
         ("cardapio", "*", _CRUD),
         ("financeiro", "*", _CRUD),
         ("pedidos", "*", _RW),
-        ("usuarios", "perfilusuario", _VIEW),
+        # Gerente gerencia a equipe (cria/edita/desativa), mas não exclui nem
+        # administra admins — guardas adicionais ficam nas views (§5).
+        ("usuarios", "perfilusuario", _RW),
     ],
     "garcom": [
         ("cardapio", "prato", _VIEW),
